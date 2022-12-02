@@ -106,7 +106,13 @@ def main():
 	book.set_title(s.title.text)
 	book.set_language("en")
 
-	book.set_cover("cover", "img.jpg", create_page=True)
+	#book.set_cover("cover.jpg", "img.jpg", create_page=True)
+	#book.set_cover("image.jpg", open('img.jpg', 'rb').read())
+
+	cover = epub.EpubHtml(title=s.title.text, file_name="cover.xhtml", lang="en")
+	cover.content = "<html><h1>"+s.title.text+"</h1></html>"
+	book.add_item(cover)
+
 
 	if 'sparknotes' in link:
 		book.add_author("Spark")
@@ -135,7 +141,7 @@ def main():
 
 
 	# basic spine
-	book.spine = ["nav",]+ch
+	book.spine = [cover,"nav"]+ch
 
 	# add default NCX and Nav file
 	book.add_item(epub.EpubNcx())

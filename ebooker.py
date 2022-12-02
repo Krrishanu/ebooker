@@ -64,15 +64,17 @@ def get_content(url):
 
 	    if 'shmoop' in link:
 	        content = s.select(".content-wrapper")
+	        c.append(content[0])
 	    elif 'spark' in link:
 	        content = s.select(".main-container")
+	        c.append(content)
 	    elif 'cliffsnotes' in link:
 	        content = s.select(".copy")
+	        c.append(content[0])
 
 	    i+=1
 
 	    t.append(s.title.text)
-	    c.append(content[0])
 	    print(s.title.text)
 
 	return t,c 
@@ -98,10 +100,13 @@ def main():
 
 	if "cliffsnotes" in link:
 		filename = link.split('/')[-2]
-	else:
+	elif 'shmoop' in link:
 		filename = link.split('/')[-1]
+	elif 'sparknotes' in link:
+		filename = link.split('/')[-2]
 
 	filename = filename+".epub"
+
 
 	s = get_soup(link)
 	url = get_links(link)
@@ -158,8 +163,8 @@ def main():
 	# write to the file
 	#filename = ''.join(e for e in s.title.text if e.isalnum())+'.epub'
 	epub.write_epub(filename,book)
-	
 
+	print("Saved as: "+filename)
+	
 if __name__ == "__main__":
 	main()
-	

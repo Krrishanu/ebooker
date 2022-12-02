@@ -82,7 +82,7 @@ def add_chapters(t,c,book):
 	i = 0
 	while i in range(len(c)):
 	# create chapter
-	    ch = epub.EpubHtml(title=t[i], file_name=t[i]+str(i)+".xhtml", lang="en")
+	    ch = epub.EpubHtml(title=str(t[i]), file_name='page00'+str(i)+".xhtml", lang="en")
 	    ch.content = str(c[i])
 	    book.add_item(ch)
 	    i+=1

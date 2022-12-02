@@ -94,6 +94,14 @@ def add_chapters(t,c,book):
 def main():
 	global link
 	link = input("Link: ")
+	
+
+	if "cliffsnotes" in link:
+		filename = link.split('/')[-2]
+	else:
+		filename = link.split('/')[-1]
+
+	filename = filename+".epub"
 
 	s = get_soup(link)
 	url = get_links(link)
@@ -148,7 +156,7 @@ def main():
 	book.add_item(epub.EpubNav())
 
 	# write to the file
-	filename = ''.join(e for e in s.title.text if e.isalnum())+'.epub'
+	#filename = ''.join(e for e in s.title.text if e.isalnum())+'.epub'
 	epub.write_epub(filename,book)
 	
 

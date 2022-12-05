@@ -40,8 +40,8 @@ def create_cover(obj):
 	draw = ImageDraw.Draw(image)
    
 
-	font_t = ImageFont.truetype("Helvetica-Font/Helvetica-Bold.ttf", size=130,)
-	font_a = ImageFont.truetype("Helvetica-Font/Helvetica.ttf", size=80,)
+	font_t = ImageFont.truetype("Helvetica-Font/Helvetica-Bold.ttf", size=150,)
+	font_a = ImageFont.truetype("Helvetica-Font/Helvetica.ttf", size=100,)
 
 	_, _, wt, ht = draw.textbbox((0, 0), title, font=font_t)
 	_, _, wa, ha = draw.textbbox((0, 0), author, font=font_a)

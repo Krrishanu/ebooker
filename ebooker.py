@@ -136,10 +136,12 @@ def create_book(obj):
 	# create spine
 	book.spine = [cover,"nav"]+chapters
 
-	# create epub file
-	epub.write_epub("export/"+file+".epub", book)
+	filename = file+'-'+author+'.epub'
 
-	print("Saved to: ","export/"+file+".epub")
+	# create epub file
+	epub.write_epub("export/"+filename, book)
+
+	print("Saved to: ","export/"+filename)
 
 
 if __name__ == '__main__':

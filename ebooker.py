@@ -24,6 +24,8 @@ def main():
 	else:
 		print("Website not supported")
 
+	create_book(obj)
+
 
 
 
@@ -135,9 +137,9 @@ def create_book(obj):
 	book.spine = [cover,"nav"]+chapters
 
 	# create epub file
-	epub.write_epub(file+".epub", book)
+	epub.write_epub("export/"+file+".epub", book)
 
-	print("Saved as: ",file+".epub")
+	print("Saved to: ","export/"+file+".epub")
 
 
 if __name__ == '__main__':

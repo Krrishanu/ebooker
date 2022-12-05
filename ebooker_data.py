@@ -168,7 +168,7 @@ class Spark:
 		#save_pages(s,filename) #Writing First Page for Shmoop
 
 		l = self.soup.select(".landing-page__umbrella")
-		url = []
+		url = [self.link]
 		urls= []
 		for i in l:
 
@@ -191,8 +191,10 @@ class Spark:
 		while i in range(len(self.url)):
 			s = get_soup(self.url[i])
 			content = s.select(".main-container")
-			title.append(s.title.text)
-			contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0]))
+
+			if len(content)!=0:
+				contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0]))
+				title.append(s.title.text)
 
 			print(s.title.text)
 

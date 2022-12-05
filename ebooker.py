@@ -1,83 +1,56 @@
-import requests, lxml
-from bs4 import BeautifulSoup as bs
+from ebooker_data import *
+
 from ebooklib import epub
+from PIL import Image, ImageDraw, ImageFont
+
+#link1 = "https://www.cliffsnotes.com/literature/d/doctor-faustus/play-summary"
+#link = "https://www.cliffsnotes.com/literature/g/gullivers-travels/book-summary"
+
+#link = "https://www.shmoop.com/study-guides/poetry/do-not-go-gentle-into-that-good-night"
+
+#link = 'https://www.sparknotes.com/shakespeare/hamlet/'
+
+link = input("Give a link: ")
 
 
+if "shmoop" in link:
+	obj = Shmoop(link)
+elif "spark" in link:
+	obj = Spark(link)
+elif "cliffsnotes" in link:
+	obj = Cliffs(link)
+else:
+	print("Website not supported")
+
+title = obj.title
+author = obj.author 
+
+t = obj.titles
+c = obj.contents
+
+file = obj.filename
+
+## Create Cover Image ##
 
 
-def get_soup(link):
+def create_cover(title,author):
 
-	r = requests.get(link)
-	if r.status_code == 200:
-		s = bs(r.text,"lxml")
-	else:
-		print("404 NOT FOUND!")
+    W,H= (1600,2560)  
+    image = Image.new(mode='RGB',size=(W,H),color=(255,255,255))
+    draw = ImageDraw.Draw(image)
+   
 
-	return s 
+    font = ImageFont.truetype("Helvetica-Font/Helvetica-Bold.ttf", size=130,)
 
-def get_links(link):
+    _, _, w, h = draw.textbbox((0, 0), title, font=font)
+    _, _, wa, h = draw.textbbox((0, 0), author, font=font)
 
-	s = get_soup(link)
+    font_2 = ImageFont.truetype("Helvetica-Font/Helvetica.ttf", size=80,)
 
-	if 'shmoop' in link:
+    draw.text(((W-w)/2, 300), title, font=font,fill=(0,0,0))
+    draw.text(((W-wa)/2,500), author, font=font_2,fill=(0,0,0))
+    image.save("cover.jpg")
 
-		#save_pages(s,filename) #Writing First Page for Shmoop
-
-		b = s.select('.sidebar-main')
-		urls = b[0].find_all('a',href=True)
-		url = []
-		for i in urls:
-			 url.append('https://www.shmoop.com'+i['href'])
-	    
-	elif 'sparknotes' in link:
-		l = s.select(".landing-page__umbrella")
-		urls = []
-		url = [link,]
-		for i in range(len(l)):
-			a = l[i].find_all("a",href=True)
-			urls = urls+a
-		for i in urls:
-			url.append('https://www.sparknotes.com'+i['href'])
-
-	elif 'cliffsnotes' in link:
-		a= s.find_all(class_='secondary-navigation')
-		urls = a[0].find_all('a',href=True)
-		url=[]
-
-		for i in urls:
-			u = "https://www.cliffsnotes.com"+i['href']
-			if u not in url:
-				url.append(u)
-		url = url[1:-5]
-
-	return url
-
-
-def get_content(url):
-	i = 0 
-	c = []
-	t = []
-	chapters=[]
-	while i in range(len(url)):
-
-	    s = get_soup(url[i])
-
-	    if 'shmoop' in link:
-	        content = s.select(".content-wrapper")
-	        c.append(content[0])
-	    elif 'spark' in link:
-	        content = s.select(".main-container")
-	        c.append(content)
-	    elif 'cliffsnotes' in link:
-	        content = s.select(".copy")
-	        c.append(content[0])
-
-	    i+=1
-
-	    t.append(s.title.text)
-	    print(s.title.text)
-
-	return t,c 
 
 def add_chapters(t,c,book):
 	chapters = []
@@ -87,84 +60,76 @@ def add_chapters(t,c,book):
 	    ch = epub.EpubHtml(title=str(t[i]), file_name='page00'+str(i)+".xhtml", lang="en")
 	    ch.content = str(c[i])
 	    book.add_item(ch)
-	    i+=1
+	    i = i+1
 	    chapters.append(ch)
 
-	return chapters 
+	return chapters
 
 
-def main():
-	global link
-	link = input("Link: ")
-	
+book = epub.EpubBook()
 
-	if "cliffsnotes" in link:
-		filename = link.split('/')[-2]
-	elif 'shmoop' in link:
-		filename = link.split('/')[-1]
-	elif 'sparknotes' in link:
-		filename = link.split('/')[-2]
+# add metadata
+book.set_title(title)
+book.set_language('en')
 
-	filename = filename+".epub"
-
-
-	s = get_soup(link)
-	url = get_links(link)
-	t,c = get_content(url)
-
-	book = epub.EpubBook()
-
-	# set metadata
-	book.set_identifier(link.split('/')[-1])
-	book.set_title(s.title.text)
-	book.set_language("en")
-
-	#book.set_cover("cover.jpg", "img.jpg", create_page=True)
-	#book.set_cover("image.jpg", open('img.jpg', 'rb').read())
-
-	cover = epub.EpubHtml(title=s.title.text, file_name="cover.xhtml", lang="en")
-	cover.content = "<html><h1>"+s.title.text+"</h1></html>"
-	book.add_item(cover)
-
-
-	if 'sparknotes' in link:
-		book.add_author("Spark")
-	elif "shmoop" in link:
-		book.add_author("Shmoop")
-	elif "cliffsnotes" in link:
-		book.add_author("Cliffs")
-
-	ch = add_chapters(t,c,book)
-
-	book.toc=(ch)
-
-
-	# define CSS style
-	style = "BODY {color: white;}"
-	nav_css = epub.EpubItem(
-	    uid="style_nav",
-	    file_name="style/nav.css",
-	    media_type="text/css",
-	    content=style,
-	)
-
-	# add CSS file
-	book.add_item(nav_css)
+book.add_author(author)
 
 
 
-	# basic spine
-	book.spine = [cover,"nav"]+ch
+cover = epub.EpubHtml(title=title, file_name="0000.xhtml", lang="en")
+cover.content = "<html><h1>"+title+"</h1></html>"
+book.add_item(cover)
 
-	# add default NCX and Nav file
-	book.add_item(epub.EpubNcx())
-	book.add_item(epub.EpubNav())
+create_cover(file,author)
 
-	# write to the file
-	#filename = ''.join(e for e in s.title.text if e.isalnum())+'.epub'
-	epub.write_epub(filename,book)
+book.set_cover("image.jpg", open('cover.jpg', 'rb').read())
+ 
 
-	print("Saved as: "+filename)
-	
-if __name__ == "__main__":
-	main()
+chapters = add_chapters(t,c,book)
+
+# create table of contents
+# - add section
+# - add auto created links to chapters
+
+book.toc = (chapters)
+
+# add navigation files
+book.add_item(epub.EpubNcx())
+book.add_item(epub.EpubNav())
+
+# define css style
+style = '''
+@namespace epub "http://www.idpf.org/2007/ops";
+body {
+font-family: Cambria, Liberation Serif, Bitstream Vera Serif, Georgia, Times, Times New Roman, serif;
+}
+h2 {
+ text-align: left;
+ text-transform: uppercase;
+ font-weight: 200;     
+}
+ol {
+    list-style-type: none;
+}
+ol > li:first-child {
+    margin-top: 0.3em;
+}
+nav[epub|type~='toc'] > ol > li > ol  {
+list-style-type:square;
+}
+nav[epub|type~='toc'] > ol > li > ol > li {
+    margin-top: 0.3em;
+}
+'''
+
+# add css file
+nav_css = epub.EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=style)
+book.add_item(nav_css)
+
+# create spine
+book.spine = [cover,"nav"]+chapters
+
+# create epub file
+epub.write_epub(file+".epub", book)
+
+print("Saved as: ",file+".epub")

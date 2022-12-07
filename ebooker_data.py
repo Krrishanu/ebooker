@@ -188,7 +188,7 @@ class Spark:
 		contents = []
 		title = []
 
-		while i in range(len(self.url[0:5])):
+		while i in range(len(self.url)):
 			s = get_soup(self.url[i])
 
 			content = s.select(".main-container")

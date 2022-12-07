@@ -188,12 +188,27 @@ class Spark:
 		contents = []
 		title = []
 
-		while i in range(len(self.url)):
+		while i in range(len(self.url[0:5])):
 			s = get_soup(self.url[i])
+
 			content = s.select(".main-container")
 
+			# Check for next page
+			n=s.select("a.tag--interior-pagination:nth-child(2)")
+
+			if len(n)!=0:
+				npl = self.url[i]+n[0]['href']
+				nps = get_soup(npl)
+				content1 = nps.select(".main-container")
+			else:
+				content1 = []
+
+
+
+			
+
 			if len(content)!=0:
-				contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0]))
+				contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0])+str(content1[0]))
 				title.append(s.title.text)
 
 			print(s.title.text)

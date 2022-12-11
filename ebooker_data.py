@@ -3,14 +3,15 @@ from bs4 import BeautifulSoup as bs
 from ebooklib import epub
 
 def get_soup(link):
-
+	s = None
 	r = requests.get(link)
 	if r.status_code == 200:
 		s = bs(r.text,"lxml")
+		return s
 	else:
 		print("404 NOT FOUND!")
 
-	return s 
+	 
 
 class Shmoop:
 
@@ -207,9 +208,13 @@ class Spark:
 
 			
 
-			if len(content)!=0:
+			if len(content)!=0 and len(content1)!=0:
 				contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0])+str(content1[0]))
 				title.append(s.title.text)
+			elif len(content)!=0:
+				contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0]))
+				title.append(s.title.text)
+
 
 			print(s.title.text)
 

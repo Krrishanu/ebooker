@@ -24,7 +24,7 @@ class Shmoop:
 		self.soup = get_soup(self.link)
 		self.title = self.soup.title.text
 
-		self.url = self.get_links()
+#		self.url = self.get_links()
 								
 		title,content = self.get_content()
 		self.titles = title
@@ -55,11 +55,15 @@ class Shmoop:
 		title = []
 		chapters=[]
 
+		pg = self.link
+
 		l_del = self.title.split('Introduction')[0]
 		r_del = self.title.split('Introduction')[-1]
 
-		while i in range(len(self.url)):
-			s = get_soup(self.url[i])
+		while True:
+			
+
+			s = get_soup(pg)
 			content = s.select(".content-wrapper")
 			
 			contents.append(content[0])
@@ -72,7 +76,18 @@ class Shmoop:
 
 			print(t)
 
-			i = i+1
+			# Next Page
+
+			navs = s.select(".btn-next")
+
+			if len(navs)!=0:
+
+				nxt_pg = "https://www.shmoop.com" + navs[-1]['href']
+
+				pg = nxt_pg
+
+			else:
+				break
 		
 			
 
@@ -91,11 +106,77 @@ class Cliffs:
 		self.soup = get_soup(self.link)
 		self.title = self.soup.select(".title-wrapper > h1:nth-child(1)")[0].text
 
-		self.url = self.get_links()
+#		self.url = self.get_links()
 								
 		title,content = self.get_content()
 		self.titles = title
 		self.contents = content
+
+
+
+	def get_content(self):
+
+		i = 0 
+		contents = []
+		title = []
+		chapters=[]
+
+		pgs_visited = [self.link,]
+
+		pg = self.link
+
+		while i == 0:
+			s = get_soup(pg)
+			
+
+			# Getting Data
+			content = s.select(".copy")
+
+			if len(content)!=0:
+				title.append(s.title.text)
+				contents.append(content[0])
+
+				print(s.title.text)
+
+			# Pagination
+
+			navs = s.select(".nav-bttn-filled")
+
+			if len(navs)!=0:
+
+				nxt_pg = "https://www.cliffsnotes.com" + navs[-1]['href']
+
+			else:
+
+				nxt_pg = None
+
+			if nxt_pg != None and nxt_pg not in pgs_visited:
+				
+				pgs_visited.append(nxt_pg)
+				pg = nxt_pg
+
+			else:
+				print('Total '+str(len(pgs_visited))+' Pages')
+				i = 1
+
+		return title, contents 
+
+
+
+
+
+
+
+'''
+			if len(content)!=0:
+				title.append(s.title.text)
+				contents.append(content[0])
+
+				print(s.title.text)
+
+
+
+			i += 1
 
 
 
@@ -141,7 +222,7 @@ class Cliffs:
 
 		return title, contents 
 
-
+	'''
 
 class Spark:
 
@@ -189,36 +270,46 @@ class Spark:
 		contents = []
 		title = []
 
-		while i in range(len(self.url)):
-			s = get_soup(self.url[i])
+		pg = self.link
+
+		pgs_visited=[self.link,]
+
+		while i == 0:
+
+			s = get_soup(pg)
+
+			if pg in self.url:
+				self.url.remove(pg)
+
 
 			content = s.select(".main-container")
 
-			# Check for next page
-			n=s.select("a.tag--interior-pagination:nth-child(2)")
-
-			if len(n)!=0:
-				npl = self.url[i]+n[0]['href']
-				nps = get_soup(npl)
-				content1 = nps.select(".main-container")
-			else:
-				content1 = []
-
-
-
-			
-
-			if len(content)!=0 and len(content1)!=0:
-				contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0])+str(content1[0]))
-				title.append(s.title.text)
-			elif len(content)!=0:
+			if len(content)!=0:
 				contents.append(str("<h2>"+s.title.text)+"</h2>"+str(content[0]))
 				title.append(s.title.text)
 
 
+
 			print(s.title.text)
 
-			i += 1
+			# Check for next page
+			
+			n = s.select(".page-turn-nav__link--next")
+
+
+			if len(n)!=0:
+				nxt_pg = 'https://www.sparknotes.com'+n[0]['href']+'/'
+
+				pg = nxt_pg
+
+				pgs_visited.append(pg)
+				
+			elif len(self.url) !=0:
+				pg = self.url[0]
+
+			else:
+				i = 1
+
 
 		
 			
